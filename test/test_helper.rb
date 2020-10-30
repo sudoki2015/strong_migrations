@@ -26,6 +26,7 @@ def migrate(migration, direction: :up)
   else
     migration.migrate(direction)
   end
+  puts "\n\n" if ENV["VERBOSE"]
   true
 end
 
@@ -39,6 +40,7 @@ TestSchema = ActiveRecord::Schema
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS users")
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS new_users")
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS orders")
+ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS devices")
 
 class CreateUsers < TestMigration
   def change
@@ -52,6 +54,9 @@ class CreateUsers < TestMigration
     end
 
     create_table "orders" do |t|
+    end
+
+    create_table "devices" do |t|
     end
   end
 end
@@ -68,6 +73,15 @@ module Helpers
 
   def mariadb?
     ENV["ADAPTER"] == "mysql2" && ActiveRecord::Base.connection.try(:mariadb?)
+  end
+
+  def assert_safe(migration, direction: nil)
+    if direction
+      assert migrate(migration, direction: direction)
+    else
+      assert migrate(migration, direction: :up)
+      assert migrate(migration, direction: :down)
+    end
   end
 end
 

@@ -575,6 +575,20 @@ end
 
 Certain methods like `execute` and `change_table` cannot be inspected and are prevented from running by default. Make sure what you’re doing is really safe and use this pattern.
 
+## Safe by Default [experimental]
+
+Make operations safe by default.
+
+- adding and removing an index
+- adding a foreign key
+- setting NOT NULL on an existing column
+
+Add to `config/initializers/strong_migrations.rb`:
+
+```ruby
+StrongMigrations.safe_by_default = true
+```
+
 ## Custom Checks
 
 Add your own custom checks with:

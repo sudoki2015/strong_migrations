@@ -531,15 +531,6 @@ class StrongMigrationsTest < Minitest::Test
     assert_match message, error.message if message
   end
 
-  def assert_safe(migration, direction: nil)
-    if direction
-      assert migrate(migration, direction: direction)
-    else
-      assert migrate(migration, direction: :up)
-      assert migrate(migration, direction: :down)
-    end
-  end
-
   def reset_timeouts
     StrongMigrations.lock_timeout = nil
     StrongMigrations.statement_timeout = nil
