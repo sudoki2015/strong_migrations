@@ -555,13 +555,11 @@ Then add the foreign key in separate migrations."
     # TODO check if invalid index with expected name exists and remove if needed
     def safe_add_index(table, columns, options)
       disable_transaction
-
       @migration.add_index(table, columns, options.merge(algorithm: :concurrently))
     end
 
     def safe_remove_index(table, options)
       disable_transaction
-
       @migration.remove_index(table, options.merge(algorithm: :concurrently))
     end
 
@@ -569,7 +567,6 @@ Then add the foreign key in separate migrations."
       @migration.reversible do |dir|
         dir.up do
           disable_transaction
-
           foreign_key = options.delete(:foreign_key)
           @migration.add_reference(table, reference, **options)
           if foreign_key
