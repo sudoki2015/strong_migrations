@@ -578,7 +578,7 @@ Then add the foreign key in separate migrations."
                 (ActiveRecord::Base.pluralize_table_names ? reference.to_s.pluralize : reference).to_sym
               end
 
-            safe_add_foreign_key(table, name, {})
+            @migration.add_foreign_key(table, name)
           end
         end
         dir.down do
@@ -603,9 +603,11 @@ Then add the foreign key in separate migrations."
     def safe_add_foreign_key_code(from_table, to_table, add_code, validate_code)
       @migration.reversible do |dir|
         dir.up do
-          @migration.execute(add_code)
-          disable_transaction
-          @migration.execute(validate_code)
+          @migration.safety_assured do
+            @migration.execute(add_code)
+            disable_transaction
+            @migration.execute(validate_code)
+          end
         end
         dir.down do
           @migration.remove_foreign_key(from_table, to_table)
