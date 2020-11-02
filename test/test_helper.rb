@@ -92,7 +92,31 @@ module Helpers
   end
 end
 
-Minitest::Test.include(Helpers)
+class Minitest::Test
+  include Helpers
+
+  def assert_unsafe(migration, message = nil, **options)
+    error = assert_raises(StrongMigrations::UnsafeMigration) { migrate(migration, **options) }
+    puts error.message if ENV["VERBOSE"]
+    assert_match message, error.message if message
+  end
+
+  def assert_safe(migration, direction: nil)
+    if direction
+      assert migrate(migration, direction: direction)
+    else
+      assert migrate(migration, direction: :up)
+      assert migrate(migration, direction: :down)
+    end
+  end
+
+  def with_target_version(version)
+    StrongMigrations.target_version = version
+    yield
+  ensure
+    StrongMigrations.target_version = nil
+  end
+end
 
 StrongMigrations.add_check do |method, args|
   if method == :add_column && args[1].to_s == "forbidden"
