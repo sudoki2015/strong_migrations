@@ -227,11 +227,11 @@ Then add the foreign key in separate migrations."
 
                 add_code = constraint_str("ALTER TABLE %s ADD CONSTRAINT %s CHECK (%s IS NOT NULL) NOT VALID", [table, constraint_name, column])
                 validate_code = constraint_str("ALTER TABLE %s VALIDATE CONSTRAINT %s", [table, constraint_name])
+                remove_code = constraint_str("ALTER TABLE %s DROP CONSTRAINT %s", [table, constraint_name])
 
                 validate_constraint_code = String.new(safety_assured_str(validate_code))
                 if postgresql_version >= Gem::Version.new("12")
                   change_args = [table, column, null]
-                  remove_code = constraint_str("ALTER TABLE %s DROP CONSTRAINT %s", [table, constraint_name])
 
                   validate_constraint_code << "\n    #{command_str(:change_column_null, change_args)}"
                   validate_constraint_code << "\n    #{safety_assured_str(remove_code)}"
@@ -629,9 +629,15 @@ Then add the foreign key in separate migrations."
           end
         end
         dir.down do
-          # change column null if needed
-          # remove constraint if needed
-          puts "todo"
+          if change_args
+            down_args = change_args.dup
+            down_args[2] = true
+            @migration.change_column_null(*down_args)
+          else
+            @migration.safety_assured do
+              @migration.execute(remove_code)
+            end
+          end
         end
       end
     end

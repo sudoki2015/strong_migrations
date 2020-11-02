@@ -83,6 +83,13 @@ module Helpers
       assert migrate(migration, direction: :down)
     end
   end
+
+  def with_target_version(version)
+    StrongMigrations.target_version = version
+    yield
+  ensure
+    StrongMigrations.target_version = nil
+  end
 end
 
 Minitest::Test.include(Helpers)
