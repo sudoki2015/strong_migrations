@@ -2,6 +2,7 @@
 require "active_support"
 
 # modules
+require "strong_migrations/safe_methods"
 require "strong_migrations/checker"
 require "strong_migrations/database_tasks"
 require "strong_migrations/migration"
